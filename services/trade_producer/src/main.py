@@ -18,6 +18,7 @@ def produce_trades(
     Returns:
         None
     '''
+    
 
     # Create an Application instance with Kafka config
     app = Application(broker_address=kafka_broker_address)
