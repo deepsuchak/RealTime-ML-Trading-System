@@ -48,7 +48,7 @@ def transform_trade_to_ohlcv(
             'low': trade['price'],
             'close': trade['price'],
             'volume': trade['quantity'],
-            # 'product_id': trade['product_id'],
+            'product_id': trade['product_id'],
             # 'timestamp': trade['timestamp'],
         }
 
@@ -60,12 +60,13 @@ def transform_trade_to_ohlcv(
         candle['low'] = min(candle['low'], trade['price'])
         candle['close'] = trade['price']
         candle['volume'] += trade['quantity']
+        candle['product_id'] = trade['product_id']
 
         return candle
 
     sdf = sdf.tumbling_window(duration_ms=timedelta(seconds=ohlcv_window_seconds))
     sdf = sdf.reduce(reducer=update_ohlcv_candle, initializer=init_ohlc_candle
-    ).final()  # current()
+    ).current()  # current()
     
     ## apply transformations -- end
 
@@ -74,11 +75,11 @@ def transform_trade_to_ohlcv(
     sdf['low'] = sdf['value']['low']
     sdf['close'] = sdf['value']['close']
     sdf['volume'] = sdf['value']['volume']
-    # sdf['product_id'] = sdf['value']['product_id']
+    sdf['product_id'] = sdf['value']['product_id']
     sdf['timestamp_ms'] = sdf['end']
 
     # keep only the columns we're interested in
-    sdf = sdf[['timestamp_ms', 'open', 'high', 'low', 'close', 'volume']]
+    sdf = sdf[['product_id','timestamp_ms', 'open', 'high', 'low', 'close', 'volume']]
 
     # print the output to the console
     sdf.update(logger.debug)
@@ -91,13 +92,14 @@ def transform_trade_to_ohlcv(
 
 
 if __name__ == '__main__':
-
+    from src.config import config
+    
     transform_trade_to_ohlcv(
-        kafka_broker_address='localhost:19092',
-        kafka_input_topic='trades',
-        kafka_output_topic='ohlcv',
-        ohlcv_window_seconds=10,
-        kafka_consumer_group='consumer_group_trade_to_ohlcv'
+        kafka_broker_address=config.kafka_broker_address,
+        kafka_input_topic=config.kafka_input_topic,
+        kafka_output_topic=config.kafka_output_topic,
+        ohlcv_window_seconds=config.ohlcv_window_seconds,
+        kafka_consumer_group=config.kafka_consumer_group
     )
 
 
