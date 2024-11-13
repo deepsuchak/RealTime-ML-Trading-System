@@ -10,7 +10,8 @@ def topic_to_feature_store(kafka_broker_address: str,
                             feature_group_name: str,
                             feature_group_version: int,
                             feature_group_primary_key: List[str],
-                            feature_group_event_time: str
+                            feature_group_event_time: str,
+                            start_offline_materialization: bool
                             ):
     '''
     Reads from a Kafka input topic and pushes them in a feature store
@@ -21,6 +22,7 @@ def topic_to_feature_store(kafka_broker_address: str,
         kafka_consumer_group: Kafka consumer group
         feature_group_name: Feature group name
         feature_group_version: Feature group version
+        start_offline_materialization: Whether to start offline materialization
 
     Returns:
         None
@@ -51,7 +53,8 @@ def topic_to_feature_store(kafka_broker_address: str,
                   feature_group_name,
                   feature_group_version,
                   feature_group_primary_key,
-                  feature_group_event_time              
+                  feature_group_event_time,
+                  start_offline_materialization              
             )            
 
 if __name__ == "__main__":
@@ -64,6 +67,7 @@ if __name__ == "__main__":
     feature_group_name=config.feature_group_name,
     feature_group_version=config.feature_group_version ,
     feature_group_primary_key=config.feature_group_primary_keys,
-    feature_group_event_time=config.feature_group_event_time  
+    feature_group_event_time=config.feature_group_event_time,
+    start_offline_materialization=config.start_offline_materialization  
    )
 

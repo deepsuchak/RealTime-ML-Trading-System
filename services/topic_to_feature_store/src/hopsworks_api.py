@@ -8,7 +8,8 @@ def push_value_to_feature_store(
         feature_group_name: str,
         feature_group_version: int,
         feaure_group_primary_keys: str,
-        feature_group_event_time: str):
+        feature_group_event_time: str,
+        start_offline_materialization: bool):
     '''
     Pushes the value to the feature store (given the feature_group_name)
 
@@ -18,6 +19,7 @@ def push_value_to_feature_store(
         feature_group_version: Feature group version
         feaure_group_primary_key: Feature group primary key
         feature_group_event_time: Feature group event time
+        start_offline_materialization: Whether to Start offline materialization or not when we save the 'value' to the feature group 
 
     Returns:
         None
@@ -41,6 +43,6 @@ def push_value_to_feature_store(
     value_df = pd.DataFrame([value])
 
     # push the value to the feature group
-    feature_group.insert(value_df)
+    feature_group.insert(value_df, write_options={"start_offline_materialization": start_offline_materialization})
 
 
