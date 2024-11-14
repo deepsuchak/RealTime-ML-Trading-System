@@ -1,11 +1,13 @@
 from quixstreams import Application
-from src.kraken_websocket_api import KrakenWebsocketAPI, Trade
+from src.trade_data_source.kraken_websocket_api import KrakenWebsocketAPI
 from loguru import logger
 from typing import List
+from src.trade_data_source.trade import Trade
+from src.trade_data_source.base import TradeSource
 def produce_trades(
         kafka_broker_address: str,
         kafka_topic: str,
-        product_id: str
+        trade_data_source: TradeSource,
 ):
     '''
     Reads from a Kraken Websocket API endpoint and save them in a given Kafka topic
@@ -27,12 +29,12 @@ def produce_trades(
     topic = app.topic(name=kafka_topic, value_serializer='json')
 
     # Create a KrakenWebsocketAPI instance
-    kraken = KrakenWebsocketAPI(product_id=product_id)
+    
     # Create a Producer instance
     with app.get_producer() as producer:
         while True:
             
-            trades: List[Trade] = kraken.get_trades() # this will the trades which will be a list of dictionaries with a product_id key and a list of trades as value.
+            trades: List[Trade] = trade_data_source.get_trades() # this will the trades which will be a list of dictionaries with a product_id key and a list of trades as value.
             
             for trade in trades:
             
@@ -49,9 +51,11 @@ def produce_trades(
 if __name__ == "__main__":
     
     from src.config import config
-    
+    from src.trade_data_source.kraken_websocket_api import KrakenWebsocketAPI
+    kraken_api = KrakenWebsocketAPI(product_id=config.product_id)
+
     produce_trades(
         kafka_broker_address=config.kafka_broker_address,
         kafka_topic=config.kafka_topic,
-        product_id=config.product_id
+        trade_data_source=kraken_api
     )

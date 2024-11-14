@@ -5,12 +5,15 @@ from loguru import logger
 import json
 from pydantic import BaseModel
 
-class Trade(BaseModel):
-    product_id: str
-    price: float
-    quantity: float
-    timestamp_ms: int
-class KrakenWebsocketAPI:
+# class Trade(BaseModel):
+#     product_id: str
+#     price: float
+#     quantity: float
+#     timestamp_ms: int
+
+from src.trade_data_source.trade import Trade
+from src.trade_data_source.base import TradeSource
+class KrakenWebsocketAPI(TradeSource):
     URL = "wss://ws.kraken.com/v2"
     
     '''
@@ -32,7 +35,6 @@ class KrakenWebsocketAPI:
         logger.info("Connected to Kraken Websocket API")
 
         self._subscribe(product_id=product_id)
-
     
     def _subscribe(self, product_id: str):
         '''
@@ -42,7 +44,7 @@ class KrakenWebsocketAPI:
             product_id: Product id to filter the trades
         '''
 
-        logger.info("Subscribing to Kraken Websocket API")
+        logger.info(f"Subscribing to trades for {product_id}")
         msg = { 
             'method': 'subscribe',
             'params': {
@@ -110,6 +112,13 @@ class KrakenWebsocketAPI:
         
         # return trades
 
+
+    def is_done(self)->bool:
+        '''
+        Returns True if there are no more trades to read
+        '''
+        False
+
     def to_ms(self, timestamp: str)->int:
         '''
         Converts a timestamp to milliseconds
@@ -133,3 +142,19 @@ class KrakenWebsocketAPI:
         Returns True if there are no more trades to read
         '''
         False
+
+# from datetime import datetime, timezone
+# from typing import List
+# import json
+# from websocket import create_connection
+
+# from loguru import logger
+
+# from pydantic import BaseModel
+
+# class Trade(BaseModel):
+#     product_id: str
+#     quantity: float
+#     price: float
+#     timestamp_ms: int
+

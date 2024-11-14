@@ -232,6 +232,20 @@ files = [
 all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
 
 [[package]]
+name = "jsonlines"
+version = "4.0.0"
+description = "Library with helpers for the jsonlines file format"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "jsonlines-4.0.0-py3-none-any.whl", hash = "sha256:185b334ff2ca5a91362993f42e83588a360cf95ce4b71a73548502bda52a7c55"},
+    {file = "jsonlines-4.0.0.tar.gz", hash = "sha256:0c6d2c09117550c089995247f605ae4cf77dd1533041d366351f6f298822ea74"},
+]
+
+[package.dependencies]
+attrs = ">=19.2.0"
+
+[[package]]
 name = "jsonschema"
 version = "4.23.0"
 description = "An implementation of JSON Schema validation for Python"
@@ -511,16 +525,17 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "quixstreams"
-version = "3.1.0"
+version = "3.2.1"
 description = "Python library for building stream processing applications with Apache Kafka"
 optional = false
 python-versions = "<4,>=3.9"
 files = [
-    {file = "quixstreams-3.1.0-py3-none-any.whl", hash = "sha256:2b9efe8d3d98042107375f02bfa59e23ba88df1805911635e9c09eac1928c6f8"},
+    {file = "quixstreams-3.2.1-py3-none-any.whl", hash = "sha256:4e1b99044b668dde54c568ec7b0264d47c751e0595798351e1693296dd35a6e1"},
 ]
 
 [package.dependencies]
-confluent-kafka = ">=2.2,<2.5"
+confluent-kafka = ">=2.4,<2.5"
+jsonlines = ">=4,<5"
 jsonschema = ">=4.3.0"
 orjson = ">=3.9,<4"
 pydantic = ">=2.7,<2.10"
@@ -530,10 +545,10 @@ rocksdict = ">=0.3,<0.4"
 typing-extensions = ">=4.8"
 
 [package.extras]
-all = ["boto3", "fastavro (>=1.8,<2.0)", "influxdb3-python (>=0.7,<1.0)", "mypy-boto3-glue", "protobuf (>=5.27.2,<6.0)", "pyarrow", "pyiceberg"]
+all = ["fastavro (>=1.8,<2.0)", "influxdb3-python (>=0.7,<1.0)", "protobuf (>=5.27.2,<6.0)", "pyiceberg[glue,pyarrow] (>=0.7,<0.8)"]
 avro = ["fastavro (>=1.8,<2.0)"]
-iceberg = ["pyarrow", "pyiceberg"]
-iceberg-aws = ["boto3", "mypy-boto3-glue", "pyarrow", "pyiceberg"]
+iceberg = ["pyiceberg[pyarrow] (>=0.7,<0.8)"]
+iceberg-aws = ["pyiceberg[glue,pyarrow] (>=0.7,<0.8)"]
 influxdb3 = ["influxdb3-python (>=0.7,<1.0)"]
 protobuf = ["protobuf (>=5.27.2,<6.0)"]
 
@@ -791,4 +806,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "8645d501629eb4d369c4bd7c025d0b9a40997321cecdcee418e923b49ab5dfc7"
+content-hash = "b3c1941224526f214c0791f91126ccf42d8a4e83d2f964fb2b69180001c955b1"

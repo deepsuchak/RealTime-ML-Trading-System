@@ -3,6 +3,12 @@ import pandas as pd
 
 import hopsworks
 from src.config import hopsworks_config as config
+
+project = hopsworks.login(project=config.hopsworks_project_name,
+                        api_key_value=config.hopsworks_api_key)
+
+feature_store = project.get_feature_store()
+
 def push_value_to_feature_store(
         value: dict,
         feature_group_name: str,
@@ -10,6 +16,7 @@ def push_value_to_feature_store(
         feaure_group_primary_keys: str,
         feature_group_event_time: str,
         start_offline_materialization: bool):
+    
     '''
     Pushes the value to the feature store (given the feature_group_name)
 
@@ -24,10 +31,6 @@ def push_value_to_feature_store(
     Returns:
         None
     ''' 
-    project = hopsworks.login(project=config.hopsworks_project_name,
-                              api_key_value=config.hopsworks_api_key)
-
-    feature_store = project.get_feature_store()
 
     feature_group = feature_store.get_or_create_feature_group(
         name=feature_group_name,
