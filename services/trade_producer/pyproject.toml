@@ -12,6 +12,8 @@ loguru = "^0.7.2"
 websocket-client = "^1.8.0"
 pydantic = "^2.9.2"
 pydantic-settings = "^2.6.1"
+requests = "^2.32.3"
+pandas = "^2.2.3"
 
 
 [build-system]
