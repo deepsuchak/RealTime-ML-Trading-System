@@ -1,0 +1,48 @@
+version: '3.7'
+name: backfill_pipeline
+networks:
+  redpanda_network:
+    external: true
+services:
+  trade_producer:
+    build:
+     context: ../services/trade_producer
+     dockerfile: Dockerfile
+    networks:
+     - redpanda_network
+    environment:
+     - KAFKA_BROKER_ADDRESS=redpanda:9092
+     - LIVE_OR_HISTORICAL=historical
+     - LAST_N_DAYS=30
+     - KAFKA_TOPIC=historical_trades
+
+  trade_to_ohlc:
+    build:
+     context: ../services/trade_to_ohlc
+     dockerfile: Dockerfile
+    networks:
+     - redpanda_network
+    environment:
+     - KAFKA_BROKER_ADDRESS=redpanda:9092
+     - KAFKA_INPUT_TOPIC=historical_trades
+     - KAFKA_OUTPUT_TOPIC=ohlcv_historical
+     - KAFKA_CONSUMER_GROUP=trade_to_ohlc_historical_consumer_group
+
+  topic_to_feature_store:
+    build:
+     context: ../services/topic_to_feature_store
+     dockerfile: Dockerfile
+    networks:
+     - redpanda_network
+    env_file: 
+     - ../services/topic_to_feature_store/credentials.env
+    environment:
+     - KAFKA_BROKER_ADDRESS=redpanda:9092
+     - KAFKA_INPUT_TOPIC=ohlcv_historical
+     - KAFKA_CONSUMER_GROUP=consumer_group_ohlcv_historical_to_feature_store
+     - FEATURE_GROUP_NAME=ohlcv_feature_group
+     - FEATURE_GROUP_VERSION=1
+     - FEATURE_GROUP_PRIMARY_KEYS=["product_id", "timestamp_ms"]
+     - FEATURE_GROUP_EVENT_TIME=timestamp_ms
+     - START_OFFLINE_MATERIALIZATION=True
+     - BATCH_SIZE=40000

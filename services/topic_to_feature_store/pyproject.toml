@@ -10,7 +10,7 @@ python = ">=3.10,<3.13"
 quixstreams = "^3.1.0"
 loguru = "^0.7.2"
 pydantic-settings = "^2.6.1"
-hopsworks = "^3.7.0"
+hopsworks = {version = "^4.1.0", extras = ["python"]}
 
 [build-system]
 requires = ["poetry-core"]

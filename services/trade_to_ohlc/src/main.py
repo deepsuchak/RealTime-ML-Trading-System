@@ -2,6 +2,7 @@ from datetime import timedelta
 from loguru import logger
 from quixstreams import Application
 
+from typing import Any, Optional, List, Tuple
 
 def transform_trade_to_ohlcv(
     kafka_broker_address: str,
@@ -31,8 +32,15 @@ def transform_trade_to_ohlcv(
         #   auto_offset_reset="earliest", # process all msgs from the input topic when this service started
         #   auto_create_reset='latest' # forget about past msgs, process only one which come from this moment
     )
+    
+    def custom_ts_extractor(value: Any,
+                            headers:Optional[List[Tuple[str, bytes]]],
+                            timestamp:float,
+                            timestamp_type) -> float:
+        return value['timestamp_ms']
 
-    input_topic = app.topic(name=kafka_input_topic, value_serializer='json')
+
+    input_topic = app.topic(name=kafka_input_topic, value_serializer='json', timestamp_extractor=custom_ts_extractor)
     output_topic = app.topic(name=kafka_output_topic, value_serializer='json')
 
     ## create a streaming dataframe as per quixstream's docs
@@ -66,7 +74,7 @@ def transform_trade_to_ohlcv(
 
     sdf = sdf.tumbling_window(duration_ms=timedelta(seconds=ohlcv_window_seconds))
     sdf = sdf.reduce(reducer=update_ohlcv_candle, initializer=init_ohlc_candle
-    ).current()  # current()
+    ).final()  # current()
     
     ## apply transformations -- end
 

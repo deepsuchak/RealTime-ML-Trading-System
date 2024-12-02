@@ -1,0 +1,45 @@
+version: '3.7'
+name: feature_pipeline
+networks:
+  redpanda_network:
+    external: true
+services:
+  trade_producer:
+    build:
+     context: ../services/trade_producer
+     dockerfile: Dockerfile
+    networks:
+     - redpanda_network
+    environment:
+     - KAFKA_BROKER_ADDRESS=redpanda:9092
+
+  trade_to_ohlc:
+    build:
+     context: ../services/trade_to_ohlc
+     dockerfile: Dockerfile
+    networks:
+     - redpanda_network
+    environment:
+     - KAFKA_BROKER_ADDRESS=redpanda:9092
+     - KAFKA_INPUT_TOPIC=live_trades
+     - KAFKA_OUTPUT_TOPIC=ohlcv_live
+     - KAFKA_CONSUMER_GROUP=trade_to_ohlc_live_consumer_group
+
+  topic_to_feature_store:
+    build:
+     context: ../services/topic_to_feature_store
+     dockerfile: Dockerfile
+    networks:
+     - redpanda_network
+    env_file: 
+     - ../services/topic_to_feature_store/credentials.env
+    environment:
+     - KAFKA_BROKER_ADDRESS=redpanda:9092
+     - KAFKA_INPUT_TOPIC=ohlcv_live
+     - KAFKA_CONSUMER_GROUP=consumer_group_ohlcv_live_to_feature_store
+     - FEATURE_GROUP_NAME=ohlcv_feature_group
+     - FEATURE_GROUP_VERSION=1
+     - FEATURE_GROUP_PRIMARY_KEYS=["product_id", "timestamp_ms"]
+     - FEATURE_GROUP_EVENT_TIME=timestamp_ms
+     - START_OFFLINE_MATERIALIZATION=False
+     - BATCH_SIZE=1

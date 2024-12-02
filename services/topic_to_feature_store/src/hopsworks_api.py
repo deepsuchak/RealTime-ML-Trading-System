@@ -10,7 +10,7 @@ project = hopsworks.login(project=config.hopsworks_project_name,
 feature_store = project.get_feature_store()
 
 def push_value_to_feature_store(
-        value: dict,
+        value: List[dict],
         feature_group_name: str,
         feature_group_version: int,
         feaure_group_primary_keys: str,
@@ -43,7 +43,7 @@ def push_value_to_feature_store(
 
     # transform value to a pandas dataframe
     
-    value_df = pd.DataFrame([value])
+    value_df = pd.DataFrame(value)
 
     # push the value to the feature group
     feature_group.insert(value_df, write_options={"start_offline_materialization": start_offline_materialization})
